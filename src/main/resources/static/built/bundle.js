@@ -34119,8 +34119,8 @@ var App = /*#__PURE__*/function (_React$Component) {
     return _this;
   }
   _createClass(App, [{
-    key: "localFromServer",
-    value: function localFromServer(pageSize) {
+    key: "loadFromServer",
+    value: function loadFromServer(pageSize) {
       var _this2 = this;
       follow(client, root, [{
         rel: 'employees',
@@ -34139,6 +34139,7 @@ var App = /*#__PURE__*/function (_React$Component) {
           return employeeCollection;
         });
       }).done(function (employeeCollection) {
+        console.log("employeeCollection", employeeCollection);
         _this2.setState({
           employees: employeeCollection.entity._embedded.employees,
           attributes: Object.keys(_this2.schema.properties),
@@ -34215,7 +34216,7 @@ var App = /*#__PURE__*/function (_React$Component) {
   }, {
     key: "componentDidMount",
     value: function componentDidMount() {
-      this.localFromServer(this.state.pageSize);
+      this.loadFromServer(this.state.pageSize);
       // client({method: 'GET', path: '/api/employees'}).done(response => {
       //     this.setState({employees: response.entity._embedded.employees});
       // });
@@ -34255,11 +34256,11 @@ var EmployeeList = /*#__PURE__*/function (_React$Component2) {
     key: "handleInput",
     value: function handleInput(e) {
       e.preventDefault();
-      var pageSize = ReactDOM.findDOMNode(this.refs.pageSize).value;
+      var pageSize = e.target.value;
       if (/^[0-9]+$/.test(pageSize)) {
         this.props.updatePageSize(pageSize);
       } else {
-        ReactDOM.findDOMNode(this.refs.pageSize).value = pageSize.substring(0, pageSize.length - 1);
+        e.target.value = pageSize.substring(0, pageSize.length - 1);
       }
     }
 
@@ -34292,10 +34293,12 @@ var EmployeeList = /*#__PURE__*/function (_React$Component2) {
   }, {
     key: "render",
     value: function render() {
+      var _this7 = this;
       var employees = this.props.employees.map(function (employee) {
         return /*#__PURE__*/React.createElement(Employee, {
           key: employee._links.self.href,
-          employee: employee
+          employee: employee,
+          onDelete: _this7.props.onDelete
         });
       });
       var navLinks = [];
@@ -34335,11 +34338,11 @@ var EmployeeList = /*#__PURE__*/function (_React$Component2) {
 var Employee = /*#__PURE__*/function (_React$Component3) {
   _inherits(Employee, _React$Component3);
   function Employee(props) {
-    var _this7;
+    var _this8;
     _classCallCheck(this, Employee);
-    _this7 = _callSuper(this, Employee, [props]);
-    _this7.handleDelete = _this7.handleDelete.bind(_assertThisInitialized(_this7));
-    return _this7;
+    _this8 = _callSuper(this, Employee, [props]);
+    _this8.handleDelete = _this8.handleDelete.bind(_assertThisInitialized(_this8));
+    return _this8;
   }
   _createClass(Employee, [{
     key: "handleDelete",
@@ -34359,28 +34362,26 @@ var Employee = /*#__PURE__*/function (_React$Component3) {
 var CreateDialog = /*#__PURE__*/function (_React$Component4) {
   _inherits(CreateDialog, _React$Component4);
   function CreateDialog(props) {
-    var _this8;
+    var _this9;
     _classCallCheck(this, CreateDialog);
-    _this8 = _callSuper(this, CreateDialog, [props]);
-    _this8.handleSubmit = _this8.handleSubmit.bind(_assertThisInitialized(_this8));
-    _this8.props.attributes.map(function (attribute) {
-      _this8[attribute] = React.createRef();
-    });
-    return _this8;
+    _this9 = _callSuper(this, CreateDialog, [props]);
+    _this9.handleSubmit = _this9.handleSubmit.bind(_assertThisInitialized(_this9));
+    _this9.inputRefs = {};
+    return _this9;
   }
   _createClass(CreateDialog, [{
     key: "handleSubmit",
     value: function handleSubmit(e) {
-      var _this9 = this;
+      var _this10 = this;
       e.preventDefault();
       var newEmployee = {};
       this.props.attributes.forEach(function (attribute) {
-        newEmployee[attribute] = _this9[attribute].value.trim();
+        newEmployee[attribute] = _this10.inputRefs[attribute].current.value.trim();
       });
       this.props.onCreate(newEmployee);
       // clear out the dialog's inputs
       this.props.attributes.forEach(function (attribute) {
-        _this9[attribute].value = '';
+        _this10.inputRefs[attribute].current.value = '';
       });
       // Navigate away from the dialog to hide it.
       window.location = "#";
@@ -34388,13 +34389,15 @@ var CreateDialog = /*#__PURE__*/function (_React$Component4) {
   }, {
     key: "render",
     value: function render() {
+      var _this11 = this;
       var inputs = this.props.attributes.map(function (attribute) {
+        _this11.inputRefs[attribute] = React.createRef();
         return /*#__PURE__*/React.createElement("p", {
           key: attribute
         }, /*#__PURE__*/React.createElement("input", {
           type: "text",
           placeholder: attribute,
-          ref: attribute,
+          ref: _this11.inputRefs[attribute],
           className: "field"
         }));
       });

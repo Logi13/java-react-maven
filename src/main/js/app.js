@@ -17,7 +17,7 @@ class App extends React.Component {
 		this.onNavigate = this.onNavigate.bind(this);
     }
 
-    localFromServer(pageSize) {
+    loadFromServer(pageSize) {
         follow(client, root, [
             {rel: 'employees', params: {size: pageSize}}]
         ).then(employeeCollection => {
@@ -30,6 +30,7 @@ class App extends React.Component {
                 return employeeCollection;
             });
         }).done(employeeCollection => {
+            console.log("employeeCollection", employeeCollection);
             this.setState({
                 employees: employeeCollection.entity._embedded.employees,
                 attributes: Object.keys(this.schema.properties),
@@ -86,7 +87,7 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        this.localFromServer(this.state.pageSize);
+        this.loadFromServer(this.state.pageSize);
         // client({method: 'GET', path: '/api/employees'}).done(response => {
         //     this.setState({employees: response.entity._embedded.employees});
         // });
@@ -122,11 +123,11 @@ class EmployeeList extends React.Component {
 
     handleInput(e) {
         e.preventDefault();
-        const pageSize = ReactDOM.findDOMNode(this.refs.pageSize).value;
+        const pageSize = e.target.value;
         if (/^[0-9]+$/.test(pageSize)) {
             this.props.updatePageSize(pageSize);
         } else {
-            ReactDOM.findDOMNode(this.refs.pageSize).value = pageSize.substring(0, pageSize.length - 1);
+            e.target.value = pageSize.substring(0, pageSize.length - 1);
         }
     }
 
@@ -153,7 +154,8 @@ class EmployeeList extends React.Component {
 	// end::handle-nav[]
     render() {
         const employees = this.props.employees.map(employee =>
-            <Employee key={employee._links.self.href} employee={employee}/>
+            <Employee key={employee._links.self.href} employee={employee}
+                                                        onDelete={this.props.onDelete}/>
         );
 
         const navLinks = [];
@@ -221,32 +223,33 @@ class CreateDialog extends React.Component {
     constructor (props) {
         super(props);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.props.attributes.map(attribute => {
-            this[attribute] = React.createRef();
-        });
+        this.inputRefs = {};
     }
 
     handleSubmit(e) {
         e.preventDefault();
         const newEmployee = {};
         this.props.attributes.forEach(attribute => {
-            newEmployee[attribute] = this[attribute].value.trim();
+            newEmployee[attribute] = this.inputRefs[attribute].current.value.trim();
         });
         this.props.onCreate(newEmployee);
         // clear out the dialog's inputs
 		this.props.attributes.forEach(attribute => {
-			this[attribute].value = '';
+            this.inputRefs[attribute].current.value = '';
 		});
         // Navigate away from the dialog to hide it.
 		window.location = "#";
     }
 
     render() {
-        const inputs = this.props.attributes.map(attribute =>
-			<p key={attribute}>
-				<input type="text" placeholder={attribute} ref={attribute} className="field"/>
-			</p>
-		);
+        const inputs = this.props.attributes.map(attribute => {
+            this.inputRefs[attribute] = React.createRef();
+            return (
+                <p key={attribute}>
+                    <input type="text" placeholder={attribute} ref={this.inputRefs[attribute]} className="field"/>
+                </p>
+            );
+        });
 
         return (
 			<div>

@@ -20,9 +20,10 @@
     },
     "homepage": "https://github.com/spring-guides/tut-react-and-spring-data-rest",
     "scripts": {
-      "build-dev": "cross-env NODE_ENV=dev webpack --color",
+      "build:frontend": "cross-env NODE_ENV=dev webpack --color",
       "build-dev-w": "cross-env NODE_ENV=dev webpack --color --watch",
-      "watch": "webpack --watch -d --output ./target/classes/static/built/bundle.js"
+      "watch": "webpack --watch -d --output ./target/classes/static/built/bundle.js",
+      "build": "npm run build:frontend && mvnw clean package install"
     },
     "dependencies": {
       "react": "^16.5.2",

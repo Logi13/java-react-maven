@@ -69,10 +69,13 @@
 						<phase>generate-resources</phase>
 					</execution>
 					<!-- <execution>
-						<id>webpack build</id>
+						<id>npm build</id>
 						<goals>
-							<goal>webpack</goal>
+							<goal>npm</goal>
 						</goals>
+						<configuration>
+							<arguments>run build-dev</arguments>
+						</configuration>
 					</execution> -->
 				</executions>
 			</plugin>
