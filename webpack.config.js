@@ -1,13 +1,13 @@
 var path = require('path');
 
 module.exports = {
-    entry: ['./src/main/js/app.js', './src/main/js/client.js', './src/main/js/follow.js'],
+    entry: ['./frontend/src/main/js/app.js', './frontend/src/main/js/client.js', './frontend/src/main/js/follow.js'],
     devtool: 'sourcemaps',
     cache: true,
     mode: 'development',
     output: {
         path: __dirname,
-        filename: './src/main/resources/static/built/bundle.js'
+        filename: './backend/src/main/resources/static/built/bundle.js'
     },
     module: {
         rules: [
