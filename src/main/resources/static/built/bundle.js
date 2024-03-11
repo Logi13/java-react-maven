@@ -34219,7 +34219,6 @@ var App = /*#__PURE__*/function (_React$Component) {
       }).then(function (employeePromises) {
         return when.all(employeePromises);
       }).done(function (employeeCollection) {
-        console.log("---->", employeeCollection);
         _this5.setState({
           employees: employeeCollection,
           attributes: Object.keys(_this5.schema.properties),

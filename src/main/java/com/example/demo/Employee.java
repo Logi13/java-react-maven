@@ -2,8 +2,6 @@ package com.example.demo;
 
 import java.util.Objects;
 
-// import org.hibernate.annotations.DialectOverride.Version;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
